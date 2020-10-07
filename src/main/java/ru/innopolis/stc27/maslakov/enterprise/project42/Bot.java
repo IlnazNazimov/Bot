@@ -1,53 +1,65 @@
 package ru.innopolis.stc27.maslakov.enterprise.project42;
 
+import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
+import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-public class Bot extends TelegramLongPollingBot {
-    /**
-     * Метод для приема сообщений.
-     * @param update Содержит сообщение от пользователя.
-     */
-    @Override
-    public void onUpdateReceived(Update update) {
-        String message = update.getMessage().getText();
-        sendMsg(update.getMessage().getChatId().toString(), message);
+public class Bot extends TelegramWebhookBot {
+    private String webHookPath;
+    private String botUserName;
+    private String botToken;
+
+
+    public Bot(DefaultBotOptions botOptions) {
+        super(botOptions);
     }
 
-    /**
-     * Метод для настройки сообщения и его отправки.
-     * @param chatId id чата
-     * @param s Строка, которую необходимот отправить в качестве сообщения.
-     */
-    public synchronized void sendMsg(String chatId, String s) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(true);
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(s);
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-            //log.log(Level.SEVERE, "Exception: ", e.toString());
-        }
-    }
 
-    /**
-     * Метод возвращает имя бота, указанное при регистрации.
-     * @return имя бота
-     */
-    @Override
-    public String getBotUsername() {
-        return "IlnazInnopolisBot";
-    }
-
-    /**
-     * Метод возвращает token бота для связи с сервером Telegram
-     * @return token для бота
-     */
     @Override
     public String getBotToken() {
-        return "1338801531:AAFbSlxSUjLLnDIWLm-HAHBleKZOP2HuPoI";
+        return botToken;
     }
+
+    @Override
+    public String getBotUsername() {
+        return botUserName;
+    }
+
+    @Override
+    public String getBotPath() {
+        return webHookPath;
+    }
+
+    @Override
+    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+        if (update.getMessage() != null && update.getMessage().hasText()) {
+            long chat_id = update.getMessage().getChatId();
+
+
+            try {
+                execute(new SendMessage(chat_id, "Hi " + update.getMessage().getText()));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+
+    public void setWebHookPath(String webHookPath) {
+        this.webHookPath = webHookPath;
+    }
+
+    public void setBotUserName(String botUserName) {
+        this.botUserName = botUserName;
+    }
+
+    public void setBotToken(String botToken) {
+        this.botToken = botToken;
+    }
+
 }
