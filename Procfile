@@ -1,1 +1,1 @@
-worker: sh target/bin/worker
+web: java -jar wrapper/project42-0.0.1-SNAPSHOT.jar
